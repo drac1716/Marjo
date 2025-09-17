@@ -554,17 +554,6 @@ async function ajouterCommande() {
           console.error('Erreur lors de la modification de la commande:', error);
         }
       };
-          document.getElementById('commande-date').value ='';
-  document.getElementById('commande-description').value ='';
-  document.getElementById('commande-inscription').value ='';
-  document.getElementById('commande-parts').value = 0;
-  document.getElementById('commande-nom').value='';
-  document.getElementById('commande-prenom').value='';
-   document.getElementById('commande-telephone').value='';
-  document.getElementById('commande-prix').value = 0;
-  document.getElementById('commande-paiement').value='non payé';
-  document.getElementById('commande-acompte').value =0;
-  document.getElementById('commande-remarque').value='';
     }
     
     async function supprimerCommande(id) {
@@ -881,6 +870,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 });
+
 
 
 
