@@ -476,7 +476,7 @@ async function ajouterCommande() {
    document.getElementById('commande-date').value ='';
   document.getElementById('commande-description').value ='';
   document.getElementById('commande-inscription').value ='';
-  document.getElementById('commande-parts').value)= 0;
+  document.getElementById('commande-parts').value = 0;
   document.getElementById('commande-nom').value='';
   document.getElementById('commande-prenom').value='';
    document.getElementById('commande-telephone').value='';
@@ -557,7 +557,7 @@ async function ajouterCommande() {
           document.getElementById('commande-date').value ='';
   document.getElementById('commande-description').value ='';
   document.getElementById('commande-inscription').value ='';
-  document.getElementById('commande-parts').value)= 0;
+  document.getElementById('commande-parts').value = 0;
   document.getElementById('commande-nom').value='';
   document.getElementById('commande-prenom').value='';
    document.getElementById('commande-telephone').value='';
@@ -881,6 +881,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 });
+
 
 
 
