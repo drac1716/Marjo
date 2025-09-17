@@ -242,10 +242,6 @@
       const magasin = document.getElementById('magasin-produit').value;
       const prix = parseFloat(document.getElementById('prix-produit').value);
       
-      if (!nom || !magasin || isNaN(prix)) {
-        alert('Veuillez remplir tous les champs');
-        return;
-      }
       
       const produitData = {
         produit: nom,
@@ -269,17 +265,13 @@
         document.getElementById('prix-produit').value = '';
       } catch (error) {
         console.error('Erreur lors de l\'ajout du produit:', error);
-        alert('Erreur lors de l\'ajout du produit');
       }
     }
     
     async function ajouterMagasin() {
       const nom = document.getElementById('nom-magasin').value;
       
-      if (!nom) {
-        alert('Veuillez saisir un nom de magasin');
-        return;
-      }
+    
       
       try {
         await add(STORE_MAGASINS, { nom });
@@ -291,7 +283,6 @@
         document.getElementById('nom-magasin').value = '';
       } catch (error) {
         console.error('Erreur lors de l\'ajout du magasin:', error);
-        alert('Erreur lors de l\'ajout du magasin');
       }
     }
     
@@ -303,7 +294,6 @@
           afficherProduits();
         } catch (error) {
           console.error('Erreur lors de la suppression du produit:', error);
-          alert('Erreur lors de la suppression du produit');
         }
       }
     }
@@ -312,10 +302,6 @@
       // Vérifier si le magasin est utilisé par des produits
       const produitsUtilisantMagasin = produits.filter(p => p.magasinId === id);
       
-      if (produitsUtilisantMagasin.length > 0) {
-        alert('Ce magasin est utilisé par des produits et ne peut pas être supprimé');
-        return;
-      }
       
       if (confirm('Êtes-vous sûr de vouloir supprimer ce magasin ?')) {
         try {
@@ -325,7 +311,6 @@
           remplirSelectMagasins();
         } catch (error) {
           console.error('Erreur lors de la suppression du magasin:', error);
-          alert('Erreur lors de la suppression du magasin');
         }
       }
     }
@@ -447,7 +432,6 @@
         remplirTableauCommandes();
       } catch (error) {
         console.error('Erreur lors de la mise à jour du statut de paiement:', error);
-        alert('Erreur lors de la mise à jour du statut de paiement');
       }
     }
     
@@ -488,7 +472,6 @@ async function ajouterCommande() {
     document.getElementById('commande-form').reset();
   } catch (error) {
     console.error('Erreur lors de l\'ajout de la commande:', error);
-    alert('Erreur lors de l\'ajout de la commande');
   }
 }
     
@@ -529,11 +512,7 @@ async function ajouterCommande() {
         const acompte = parseFloat(document.getElementById('commande-acompte').value);
         const remarque = document.getElementById('commande-remarque').value;
         
-        if (!date || !description || !nom || !prenom || !telephone || isNaN(prix) || !paiement) {
-          alert('Veuillez remplir tous les champs obligatoires');
-          return;
-        }
-        
+   
         try {
           await update(STORE_COMMANDES, id, {
             date,
@@ -562,7 +541,6 @@ async function ajouterCommande() {
           document.getElementById('modalCommandeTitre').textContent = 'Ajouter une commande';
         } catch (error) {
           console.error('Erreur lors de la modification de la commande:', error);
-          alert('Erreur lors de la modification de la commande');
         }
       };
     }
@@ -575,7 +553,6 @@ async function ajouterCommande() {
           remplirTableauCommandes();
         } catch (error) {
           console.error('Erreur lors de la suppression de la commande:', error);
-          alert('Erreur lors de la suppression de la commande');
         }
       }
     }
@@ -879,10 +856,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Application initialisée avec succès');
   } catch (error) {
     console.error('Erreur lors de l\'initialisation de l\'application:', error);
-    alert('Erreur lors de l\'initialisation de l\'application');
   }
 
 });
+
 
 
 
