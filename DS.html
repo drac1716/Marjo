@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projet Marjorie</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { height: 100vh; }
+    .sidebar { min-height: 100vh; background-color: #343a40; }
+    .sidebar .nav-link { color: #fff; transition: background-color 0.3s; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #495057; }
+    .content { padding: 2rem; background-color: #f8f9fa; overflow-y: auto; }
+    .action-icons i { cursor: pointer; margin-right: 10px; }
+    .prix-total {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #198754;
+      background: #e9f7ef;
+      border-radius: 10px;
+      padding: 10px 20px;
+      display: inline-block;
+      margin-top: 15px;
+      text-align: center;
+      width: 100%;
+    }
+    .simulateur-header {
+      background-color: #e9ecef;
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .edit-form {
+      display: none;
+    }
+    .view-mode {
+      display: block;
+    }
+    .oeuf-indication {
+      font-size: 0.75rem;
+      color: #dc3545;
+      font-style: italic;
+    }
+    .center-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+        <div class="position-sticky pt-3">
+          <h4 class="text-center text-white mb-4">Projet Marjorie</h4>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="showContent('accueil', this)">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showContent('profil', this)">Matières premières</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showContent('parametres', this)">Simulateur</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showContent('contact', this)">Commandes</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
+        <div id="accueil">
+          <h1 class="mb-3">Bienvenue</h1>
+          <p class="lead">Ceci est la page d'accueil de ton projet avec Bootstrap.</p>
+        </div>
+
+        <div id="profil" class="d-none">
+          <h1 class="mb-3">Matières premières</h1>
+          <div class="mb-3 d-flex justify-content-between">
+            <button style="background-color:#343a40;color: white;" class="btn" data-bs-toggle="modal" data-bs-target="#modalAjout">
+              <i class="bi bi-patch-plus-fill"></i> Ajouter un produit
+            </button>
+            <button style="background-color:#343a40;color: white;" class="btn" data-bs-toggle="modal" data-bs-target="#modalMagasin">
+              <i class="bi bi-shop"></i> Ajouter un magasin
+            </button>
+          </div>
+          <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th>Produit</th>
+                <th>Magasin</th>
+                <th>Prix (€/kg)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-utilisateurs"></tbody>
+          </table>
+        </div>
+
+        <div id="parametres" class="d-none">
+          <h1 class="mb-3">Simulateur</h1>
+          <p class="lead">Calculez le coût de vos recettes en fonction des matières premières.</p>
+          <div class="card shadow rounded-3 p-3">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Composition de la recette</h5>
+              <div class="simulateur-header row g-3 mb-2">
+                <div class="col-md-3">Produit</div>
+                <div class="col-md-3">Magasin</div>
+                <div class="col-md-2">Prix (€/kg)</div>
+                <div class="col-md-3">Quantité (g/ml/unité)</div>
+                <div class="col-md-1"></div>
+              </div>
+              <div id="simulateur-container"></div>
+              <button class="btn btn-outline-dark mt-3" onclick="ajouterLigneSimulateur()">
+                <i class="bi bi-plus-circle"></i> Ajouter une ligne
+              </button>
+            </div>
+            <div class="card-body mt-4 center-content">
+              <h5 class="card-title mb-3">Coût total de la recette</h5>
+              <div id="prix-total" class="prix-total">0.00 €</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="contact" class="d-none">
+          <h1 class="mb-3">Commandes</h1>
+          <p class="lead">Ici vous pouvez afficher les commandes.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Produit -->
+  <div class="modal fade" id="modalAjout" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Ajouter un produit</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="nom-produit" class="form-control mb-2" placeholder="Nom du produit">
+          <select id="magasin-produit" class="form-control mb-2"></select>
+          <input type="number" step="0.01" id="prix-produit" class="form-control mb-2" placeholder="Prix au kg (€)">
+          <div class="oeuf-indication" id="oeuf-indication" style="display: none;">
+            <i class="bi bi-info-circle"></i> Pour les œufs, indiquez le prix pour 10 œufs
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" id="btnAjouterProduit">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Magasin -->
+  <div class="modal fade" id="modalMagasin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Gestion des magasins</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 d-flex">
+            <input type="text" id="nom-magasin" class="form-control me-2" placeholder="Nom du magasin">
+            <button class="btn btn-primary" id="btnAjouterMagasin">Ajouter</button>
+          </div>
+          <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th>Nom du magasin</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-magasins"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Chargement des données existantes
+    let produits = JSON.parse(localStorage.getItem('utilisateurs')) || [
+      { id: 1, produit: "Beurre", magasin: "LECLERC", prix: 9.4 },
+      { id: 2, produit: "Farine", magasin: "LIDL", prix: 5.6 },
+      { id: 3, produit: "Sucre glace", magasin: "Netto", prix: 4.6 },
+      { id: 4, produit: "Œufs", magasin: "LECLERC", prix: 2.5, isOeuf: true }
+    ];
+
+    let magasins = JSON.parse(localStorage.getItem('magasins')) || [
+      { id: 1, nom: "LECLERC" },
+      { id: 2, nom: "LIDL" },
+      { id: 3, nom: "Netto" }
+    ];
+
+    function sauvegarderDonnees() { 
+      localStorage.setItem('utilisateurs', JSON.stringify(produits)); 
+    }
+    
+    function sauvegarderMagasins() { 
+      localStorage.setItem('magasins', JSON.stringify(magasins)); 
+    }
+
+    // Produits
+    function remplirTableau() {
+      const tbody = document.getElementById('table-utilisateurs');
+      tbody.innerHTML = '';
+      produits.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <span class="view-mode produit-view-${p.id}">${p.produit}</span>
+            <input type="text" class="form-control edit-form produit-edit-${p.id}" value="${p.produit}">
+          </td>
+          <td>
+            <span class="view-mode magasin-view-${p.id}">${p.magasin}</span>
+            <select class="form-control edit-form magasin-edit-${p.id}"></select>
+          </td>
+          <td>
+            <span class="view-mode prix-view-${p.id}">${p.prix.toFixed(2)} €${p.isOeuf ? '<div class="oeuf-indication">(prix pour 10 œufs)</div>' : ''}</span>
+            <input type="number" step="0.01" class="form-control edit-form prix-edit-${p.id}" value="${p.prix}">
+            ${p.isOeuf ? '<div class="oeuf-indication edit-form">(prix pour 10 œufs)</div>' : ''}
+          </td>
+          <td class="action-icons">
+            <span class="view-mode">
+              <i class="bi bi-pencil-square text-primary" onclick="editerProduit(${p.id})"></i>
+              <i class="bi bi-trash text-danger" onclick="supprimerProduit(${p.id})"></i>
+            </span>
+            <span class="edit-form">
+              <i class="bi bi-check-square text-success" onclick="validerEditionProduit(${p.id})"></i>
+              <i class="bi bi-x-square text-secondary" onclick="annulerEditionProduit(${p.id})"></i>
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+        
+        // Remplir le select des magasins pour l'édition
+        const selectMagasin = tr.querySelector(`.magasin-edit-${p.id}`);
+        magasins.forEach(m => {
+          const option = document.createElement('option');
+          option.value = m.nom;
+          option.textContent = m.nom;
+          if (m.nom === p.magasin) option.selected = true;
+          selectMagasin.appendChild(option);
+        });
+      });
+    }
+    
+    function editerProduit(id) {
+      // Masquer les vues et afficher les formulaires d'édition
+      document.querySelectorAll(`.produit-view-${id}, .magasin-view-${id}, .prix-view-${id}`).forEach(el => {
+        el.style.display = 'none';
+      });
+      document.querySelectorAll(`.produit-edit-${id}, .magasin-edit-${id}, .prix-edit-${id}`).forEach(el => {
+        el.style.display = 'block';
+      });
+      // Afficher les boutons de validation et masquer les boutons d'édition
+      document.querySelectorAll(`tr:has(.produit-view-${id}) .view-mode`).forEach(el => {
+        el.style.display = 'none';
+      });
+      document.querySelectorAll(`tr:has(.produit-view-${id}) .edit-form`).forEach(el => {
+        el.style.display = 'inline';
+      });
+    }
+    
+    function validerEditionProduit(id) {
+      const nouveauNom = document.querySelector(`.produit-edit-${id}`).value.trim();
+      const nouveauMagasin = document.querySelector(`.magasin-edit-${id}`).value;
+      const nouveauPrix = parseFloat(document.querySelector(`.prix-edit-${id}`).value);
+      
+      if (!nouveauNom || !nouveauMagasin || isNaN(nouveauPrix)) {
+        alert("Veuillez remplir tous les champs correctement");
+        return;
+      }
+      
+      // Mettre à jour le produit
+      const index = produits.findIndex(p => p.id === id);
+      if (index !== -1) {
+        produits[index] = {
+          ...produits[index],
+          produit: nouveauNom,
+          magasin: nouveauMagasin,
+          prix: nouveauPrix
+        };
+        sauvegarderDonnees();
+        remplirTableau();
+        initSimulateur();
+      }
+    }
+    
+    function annulerEditionProduit(id) {
+      // Réafficher les vues et masquer les formulaires d'édition
+      document.querySelectorAll(`.produit-view-${id}, .magasin-view-${id}, .prix-view-${id}`).forEach(el => {
+        el.style.display = 'block';
+      });
+      document.querySelectorAll(`.produit-edit-${id}, .magasin-edit-${id}, .prix-edit-${id}`).forEach(el => {
+        el.style.display = 'none';
+      });
+      // Afficher les boutons d'édition et masquer les boutons de validation
+      document.querySelectorAll(`tr:has(.produit-view-${id}) .view-mode`).forEach(el => {
+        el.style.display = 'inline';
+      });
+      document.querySelectorAll(`tr:has(.produit-view-${id}) .edit-form`).forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+    
+    function supprimerProduit(id) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+        produits = produits.filter(p => p.id !== id);
+        sauvegarderDonnees();
+        remplirTableau();
+        initSimulateur();
+      }
+    }
+
+    // Magasins
+    function remplirSelectMagasins(selected = '') {
+      const select = document.getElementById('magasin-produit');
+      select.innerHTML = '';
+      magasins.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.nom;
+        opt.textContent = m.nom;
+        if (m.nom === selected) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+    
+    function remplirTableauMagasins() {
+      const tbody = document.getElementById('table-magasins');
+      tbody.innerHTML = '';
+      magasins.forEach(m => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <span class="view-mode magasin-nom-view-${m.id}">${m.nom}</span>
+            <input type="text" class="form-control edit-form magasin-nom-edit-${m.id}" value="${m.nom}">
+          </td>
+          <td>
+            <span class="view-mode">
+              <i class="bi bi-pencil-square text-primary" onclick="editerMagasin(${m.id})"></i>
+              <i class="bi bi-trash text-danger" onclick="supprimerMagasin(${m.id})"></i>
+            </span>
+            <span class="edit-form">
+              <i class="bi bi-check-square text-success" onclick="validerEditionMagasin(${m.id})"></i>
+              <i class="bi bi-x-square text-secondary" onclick="annulerEditionMagasin(${m.id})"></i>
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    
+    function editerMagasin(id) {
+      // Masquer la vue et afficher le formulaire d'édition
+      document.querySelector(`.magasin-nom-view-${id}`).style.display = 'none';
+      document.querySelector(`.magasin-nom-edit-${id}`).style.display = 'block';
+      // Afficher les boutons de validation et masquer les boutons d'édition
+      const tr = document.querySelector(`.magasin-nom-view-${id}`).closest('tr');
+      tr.querySelectorAll('.view-mode').forEach(el => {
+        el.style.display = 'none';
+      });
+      tr.querySelectorAll('.edit-form').forEach(el => {
+        el.style.display = 'inline';
+      });
+    }
+    
+    function validerEditionMagasin(id) {
+      const nouveauNom = document.querySelector(`.magasin-nom-edit-${id}`).value.trim();
+      
+      if (!nouveauNom) {
+        alert("Veuillez saisir un nom de magasin valide");
+        return;
+      }
+      
+      // Vérifier si le nom existe déjà
+      if (magasins.some(m => m.nom.toLowerCase() === nouveauNom.toLowerCase() && m.id !== id)) {
+        alert("Ce nom de magasin existe déjà !");
+        return;
+      }
+      
+      // Mettre à jour le magasin
+      const index = magasins.findIndex(m => m.id === id);
+      if (index !== -1) {
+        const ancienNom = magasins[index].nom;
+        magasins[index].nom = nouveauNom;
+        
+        // Mettre à jour également les produits associés à cet ancien nom de magasin
+        produits.forEach(p => {
+          if (p.magasin === ancienNom) {
+            p.magasin = nouveauNom;
+          }
+        });
+        
+        sauvegarderMagasins();
+        sauvegarderDonnees();
+        remplirTableauMagasins();
+        remplirSelectMagasins();
+        remplirTableau();
+        initSimulateur();
+      }
+    }
+    
+    function annulerEditionMagasin(id) {
+      // Réafficher la vue et masquer le formulaire d'édition
+      document.querySelector(`.magasin-nom-view-${id}`).style.display = 'block';
+      document.querySelector(`.magasin-nom-edit-${id}`).style.display = 'none';
+      // Afficher les boutons d'édition et masquer les boutons de validation
+      const tr = document.querySelector(`.magasin-nom-view-${id}`).closest('tr');
+      tr.querySelectorAll('.view-mode').forEach(el => {
+        el.style.display = 'inline';
+      });
+      tr.querySelectorAll('.edit-form').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+    
+    function supprimerMagasin(id) {
+      const magasin = magasins.find(m => m.id === id);
+      const produitsAssocies = produits.filter(p => p.magasin === magasin.nom);
+      
+      if (produitsAssocies.length > 0) {
+        if (!confirm(`Ce magasin est associé à ${produitsAssocies.length} produit(s). Voulez-vous vraiment le supprimer ? Cette action supprimera également tous les produits associés.`)) {
+          return;
+        }
+      } else if (!confirm("Êtes-vous sûr de vouloir supprimer ce magasin ?")) {
+        return;
+      }
+      
+      // Supprimer le magasin et les produits associés
+      magasins = magasins.filter(m => m.id !== id);
+      produits = produits.filter(p => p.magasin !== magasin.nom);
+      
+      sauvegarderMagasins();
+      sauvegarderDonnees();
+      remplirTableauMagasins();
+      remplirSelectMagasins();
+      remplirTableau();
+      initSimulateur();
+    }
+
+    // Ajout d'un produit
+    document.getElementById('btnAjouterProduit').addEventListener('click', function() {
+      const nomProduit = document.getElementById('nom-produit').value.trim();
+      const magasinProduit = document.getElementById('magasin-produit').value;
+      const prixProduit = parseFloat(document.getElementById('prix-produit').value);
+      
+      if (!nomProduit || !magasinProduit || isNaN(prixProduit)) {
+        alert("Veuillez remplir tous les champs correctement");
+        return;
+      }
+      
+      // Vérifier si le produit existe déjà dans ce magasin
+      const existeDeja = produits.some(p => 
+        p.produit.toLowerCase() === nomProduit.toLowerCase() && 
+        p.magasin === magasinProduit
+      );
+      
+      if (existeDeja) {
+        alert("Ce produit existe déjà dans ce magasin");
+        return;
+      }
+      
+      // Vérifier si c'est un produit d'œufs
+      const isOeuf = nomProduit.toLowerCase().includes('œuf') || nomProduit.toLowerCase().includes('oeuf');
+      
+      produits.push({
+        id: Date.now(),
+        produit: nomProduit,
+        magasin: magasinProduit,
+        prix: prixProduit,
+        isOeuf: isOeuf
+      });
+      
+      sauvegarderDonnees();
+      remplirTableau();
+      remplirSelectMagasins(magasinProduit);
+      initSimulateur();
+      
+      // Fermer le modal et réinitialiser les champs
+      document.getElementById('nom-produit').value = '';
+      document.getElementById('prix-produit').value = '';
+      document.getElementById('oeuf-indication').style.display = 'none';
+      bootstrap.Modal.getInstance(document.getElementById('modalAjout')).hide();
+    });
+
+    // Afficher l'indication pour les œufs
+    document.getElementById('nom-produit').addEventListener('input', function() {
+      const nomProduit = this.value.toLowerCase();
+      const indicationOeuf = document.getElementById('oeuf-indication');
+      
+      if (nomProduit.includes('œuf') || nomProduit.includes('oeuf')) {
+        indicationOeuf.style.display = 'block';
+      } else {
+        indicationOeuf.style.display = 'none';
+      }
+    });
+
+    document.getElementById('btnAjouterMagasin').addEventListener('click', () => {
+      const nomMagasin = document.getElementById('nom-magasin').value.trim();
+      if (!nomMagasin) return;
+      if (magasins.some(m => m.nom.toLowerCase() === nomMagasin.toLowerCase())) {
+        alert("Ce magasin existe déjà !");
+        return;
+      }
+      magasins.push({ id: Date.now(), nom: nomMagasin });
+      sauvegarderMagasins();
+      remplirTableauMagasins();
+      remplirSelectMagasins();
+      initSimulateur();
+      document.getElementById('nom-magasin').value = "";
+    });
+
+    // Simulateur
+    function initLigne(ligne) {
+      const selProduit = ligne.querySelector('.simulateur-produit');
+      const selMagasin = ligne.querySelector('.simulateur-magasin');
+      const inputPrix = ligne.querySelector('.simulateur-prix');
+      const inputQuantite = ligne.querySelector('.simulateur-quantite');
+      const indicationOeuf = ligne.querySelector('.oeuf-indication') || document.createElement('div');
+
+      selProduit.innerHTML = '<option value="">Sélectionner un produit</option>';
+      // Regrouper les produits par nom pour éviter les doublons
+      const nomsProduits = [...new Set(produits.map(p => p.produit))];
+      nomsProduits.forEach(nom => {
+        const opt = document.createElement('option');
+        opt.value = nom;
+        opt.textContent = nom;
+        selProduit.appendChild(opt);
+      });
+
+      function updateMagasinEtPrix() {
+        const nomProduit = selProduit.value;
+        selMagasin.innerHTML = '<option value="">Sélectionner un magasin</option>';
+        inputPrix.value = '';
+        
+        // Afficher/masquer l'indication pour les œufs
+        if (nomProduit.toLowerCase().includes('œuf') || nomProduit.toLowerCase().includes('oeuf')) {
+          indicationOeuf.textContent = "Pour les œufs, indiquez le nombre d'œufs (ex: 3 pour 3 œufs)";
+          indicationOeuf.className = 'oeuf-indication mt-1';
+          if (!indicationOeuf.parentNode) {
+            inputQuantite.parentNode.appendChild(indicationOeuf);
+          }
+        } else {
+          indicationOeuf.remove();
+        }
+        
+        if (nomProduit) {
+          // Trouver tous les magasins qui proposent ce produit
+          const magasinsProduit = produits.filter(p => p.produit === nomProduit);
+          magasinsProduit.forEach(p => {
+            const o = document.createElement('option');
+            o.value = p.magasin;
+            o.textContent = p.magasin;
+            o.dataset.prix = p.prix;
+            o.dataset.isOeuf = p.isOeuf || false;
+            selMagasin.appendChild(o);
+          });
+        }
+      }
+
+      function updatePrixFromSelection() {
+        if (selMagasin.selectedIndex > 0) {
+          const selectedOption = selMagasin.options[selMagasin.selectedIndex];
+          inputPrix.value = selectedOption.dataset.prix;
+        } else {
+          inputPrix.value = '';
+        }
+        updatePrixTotal();
+      }
+
+      selProduit.addEventListener('change', updateMagasinEtPrix);
+      selMagasin.addEventListener('change', updatePrixFromSelection);
+      inputQuantite.addEventListener('input', updatePrixTotal);
+
+      updateMagasinEtPrix();
+    }
+    
+    function ajouterLigneSimulateur() {
+      const container = document.getElementById('simulateur-container');
+      const ligne = document.createElement('div');
+      ligne.className = 'row g-3 mb-3 align-items-center simulateur-ligne';
+      ligne.innerHTML = `
+        <div class="col-md-3"><select class="form-select simulateur-produit"></select></div>
+        <div class="col-md-3"><select class="form-select simulateur-magasin"></select></div>
+        <div class="col-md-2"><input type="number" class="form-control simulateur-prix" placeholder="Prix" readonly></div>
+        <div class="col-md-3"><input type="number" class="form-control simulateur-quantite" placeholder="Quantité (g)" value="0"></div>
+        <div class="col-md-1 text-center"><i class="bi bi-x-circle text-danger" style="cursor:pointer;font-size:1.5rem;" onclick="this.closest('.simulateur-ligne').remove();updatePrixTotal();"></i></div>
+      `;
+      container.appendChild(ligne);
+      initLigne(ligne);
+    }
+    
+    function updatePrixTotal() {
+      let total = 0;
+      document.querySelectorAll('.simulateur-ligne').forEach(ligne => {
+        const prix = parseFloat(ligne.querySelector('.simulateur-prix').value) || 0;
+        let quantite = parseFloat(ligne.querySelector('.simulateur-quantite').value) || 0;
+        
+        // Vérifier si c'est un produit d'œufs
+        const selProduit = ligne.querySelector('.simulateur-produit');
+        const selMagasin = ligne.querySelector('.simulateur-magasin');
+        
+        if (selProduit && selMagasin && selProduit.value && selMagasin.selectedIndex > 0) {
+          const selectedOption = selMagasin.options[selMagasin.selectedIndex];
+          const isOeuf = selectedOption.dataset.isOeuf === 'true';
+          
+          if (isOeuf) {
+            // Pour les œufs, le prix est pour 10 œufs, donc on calcule le prix par œuf
+            total += (prix / 10) * quantite;
+          } else {
+            // Pour les autres produits, calcul normal (prix au kg / 1000 * quantité en g)
+            total += (prix / 1000) * quantite;
+          }
+        }
+      });
+      document.getElementById('prix-total').textContent = total.toFixed(2) + " €";
+    }
+    
+    function initSimulateur() {
+      const container = document.getElementById('simulateur-container');
+      container.innerHTML = '';
+      ajouterLigneSimulateur();
+      updatePrixTotal();
+    }
+
+    // Navigation
+    function showContent(id, el) {
+      document.querySelectorAll('.content > div').forEach(d => d.classList.add('d-none'));
+      document.getElementById(id).classList.remove('d-none');
+      document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+      el.classList.add('active');
+      if (id === 'profil') {
+        remplirTableau();
+        remplirSelectMagasins();
+        remplirTableauMagasins();
+      }
+      if (id === 'parametres') {
+        initSimulateur();
+      }
+    }
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+      remplirTableau();
+      remplirSelectMagasins();
+      remplirTableauMagasins();
+      initSimulateur();
+      
+      // Ajouter les écouteurs d'événements pour les modaux
+      const modalAjout = document.getElementById('modalAjout');
+      modalAjout.addEventListener('show.bs.modal', function() {
+        remplirSelectMagasins();
+        document.getElementById('oeuf-indication').style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
