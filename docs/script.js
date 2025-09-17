@@ -451,47 +451,58 @@
       }
     }
     
-    async function ajouterCommande() {
-      const date = document.getElementById('commande-date').value;
-      const description = document.getElementById('commande-description').value;
-      const inscription = document.getElementById('commande-inscription').value;
-      const parts = parseInt(document.getElementById('commande-parts').value);
-      const nom = document.getElementById('commande-nom').value;
-      const prenom = document.getElementById('commande-prenom').value;
-      const telephone = document.getElementById('commande-telephone').value;
-      const prix = parseFloat(document.getElementById('commande-prix').value);
-      const paiement = document.getElementById('commande-paiement').value;
-      const acompte = parseFloat(document.getElementById('commande-acompte').value);
-      const remarque = document.getElementById('commande-remarque').value;
-      
-      
-      const commandeData = {
-        date,
-        description,
-        inscription,
-        parts,
-        nom,
-        prenom,
-        telephone,
-        prix,
-        paiement,
-        acompte: paiement === 'acompte' ? acompte : 0,
-        remarque
-      };
-      
-      try {
-        await add(STORE_COMMANDES, commandeData);
-        commandes = await getAll(STORE_COMMANDES);
-        remplirTableauCommandes();
-        
-        // Fermer le modal et réinitialiser le formulaire
-        bootstrap.Modal.getInstance(document.getElementById('modalCommande')).hide();
-        document.getElementById('commande-form').reset();
-      } catch (error) {
-        console.error('Erreur lors de l\'ajout de la commande:', error);
-        alert('Erreur lors de l\'ajout de la commande');
-      }
-    }
+async function ajouterCommande() {
+  const date = document.getElementById('commande-date').value;
+  const description = document.getElementById('commande-description').value;
+  const inscription = document.getElementById('commande-inscription').value;
+  const parts = parseInt(document.getElementById('commande-parts').value);
+  const nom = document.getElementById('commande-nom').value;
+  const prenom = document.getElementById('commande-prenom').value;
+  const telephone = document.getElementById('commande-telephone').value;
+  const prix = parseFloat(document.getElementById('commande-prix').value);
+  const paiement = document.getElementById('commande-paiement').value;
+  const acompte = parseFloat(document.getElementById('commande-acompte').value);
+  const remarque = document.getElementById('commande-remarque').value;
+  
+  // VALIDATION DES CHAMPS OBLIGATOIRES
+  if (!date || !description || !nom || !prenom || !telephone || isNaN(prix) || !paiement) {
+    alert('Veuillez remplir tous les champs obligatoires');
+    return; // Arrêter l'exécution si validation échoue
+  }
+  
+  // Validation spécifique pour l'acompte
+  if (paiement === 'acompte' && (isNaN(acompte) || acompte <= 0)) {
+    alert('Veuillez saisir un montant d\'acompte valide');
+    return;
+  }
+  
+  const commandeData = {
+    date,
+    description,
+    inscription,
+    parts,
+    nom,
+    prenom,
+    telephone,
+    prix,
+    paiement,
+    acompte: paiement === 'acompte' ? acompte : 0,
+    remarque
+  };
+  
+  try {
+    await add(STORE_COMMANDES, commandeData);
+    commandes = await getAll(STORE_COMMANDES);
+    remplirTableauCommandes();
+    
+    // Fermer le modal et réinitialiser le formulaire
+    bootstrap.Modal.getInstance(document.getElementById('modalCommande')).hide();
+    document.getElementById('commande-form').reset();
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de la commande:', error);
+    alert('Erreur lors de l\'ajout de la commande');
+  }
+}
     
     async function editerCommande(id) {
       const commande = commandes.find(c => c.id === id);
@@ -884,4 +895,5 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 });
+
 
