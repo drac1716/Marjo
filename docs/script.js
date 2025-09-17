@@ -464,10 +464,6 @@
       const acompte = parseFloat(document.getElementById('commande-acompte').value);
       const remarque = document.getElementById('commande-remarque').value;
       
-      if (!date || !description || !nom || !prenom || !telephone || !parts ) {
-        alert('Veuillez remplir tous les champs obligatoires');
-        return;
-      }
       
       const commandeData = {
         date,
@@ -888,3 +884,4 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 });
+
