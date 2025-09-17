@@ -464,7 +464,7 @@
       const acompte = parseFloat(document.getElementById('commande-acompte').value);
       const remarque = document.getElementById('commande-remarque').value;
       
-      if (!date || !description || !nom || !prenom || !telephone || isNaN(prix) || !paiement) {
+      if (!date || !description || !nom || !prenom || !telephone || !parts ) {
         alert('Veuillez remplir tous les champs obligatoires');
         return;
       }
@@ -886,4 +886,5 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.error('Erreur lors de l\'initialisation de l\'application:', error);
     alert('Erreur lors de l\'initialisation de l\'application');
   }
+
 });
