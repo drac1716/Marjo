@@ -464,18 +464,6 @@ async function ajouterCommande() {
   const acompte = parseFloat(document.getElementById('commande-acompte').value);
   const remarque = document.getElementById('commande-remarque').value;
   
-  // VALIDATION DES CHAMPS OBLIGATOIRES
-  if (!date || !description || !nom || !prenom || !telephone || isNaN(prix) || !paiement) {
-    alert('Veuillez remplir tous les champs obligatoires');
-    return; // Arrêter l'exécution si validation échoue
-  }
-  
-  // Validation spécifique pour l'acompte
-  if (paiement === 'acompte' && (isNaN(acompte) || acompte <= 0)) {
-    alert('Veuillez saisir un montant d\'acompte valide');
-    return;
-  }
-  
   const commandeData = {
     date,
     description,
@@ -895,5 +883,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 });
+
 
 
